@@ -9,17 +9,10 @@ import (
 	"time"
 )
 
-type Save interface {
-}
-
-type save struct {
-	data saveData
-}
-
 type saveData struct {
 	GameParameters       GameParameters
 	Turns                int
-	CurrentPlayer        string
+	CurrentFaction       string
 	CurrentTurnStartTime time.Time
 	GameID               string
 	HistoryStartTurn     int
@@ -57,7 +50,7 @@ func (data saveDataIntermediate) Convert(v *saveData) error {
 	}
 	v.GameParameters = gameParameters
 	v.Turns = data.Turns
-	v.CurrentPlayer = data.CurrentPlayer
+	v.CurrentFaction = data.CurrentPlayer
 	v.CurrentTurnStartTime = time.Unix(data.CurrentTurnStartTime, 0)
 	v.GameID = data.GameID
 	v.HistoryStartTurn = data.HistoryStartTurn
