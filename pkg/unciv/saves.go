@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
-	"strings"
 	"time"
 )
 
@@ -19,65 +17,98 @@ type save struct {
 }
 
 type saveData struct {
-	GameParameters       GameParameters `json:"gameParameters"`
-	Turns                int            `json:"turns"`
-	CurrentPlayer        string         `json:"currentPlayer"`
-	CurrentTurnStartTime time.Time      `json:"currentTurnStartTime,int"`
-	GameID               string         `json:"gameId"`
-	HistoryStartTurn     int            `json:"historyStartTurn"`
+	GameParameters       GameParameters
+	Turns                int
+	CurrentPlayer        string
+	CurrentTurnStartTime time.Time
+	GameID               string
+	HistoryStartTurn     int
+}
+
+func (sd *saveData) UnmarshalJSON(data []byte) error {
+	// unmarshal to intermediate first
+	var intermediate saveDataIntermediate
+	err := json.Unmarshal(data, &intermediate)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal to intermediate: %w", err)
+	}
+
+	err = intermediate.Convert(sd)
+	if err != nil {
+		return fmt.Errorf("failed to convert intermediate: %w", err)
+	}
+	return nil
+}
+
+type saveDataIntermediate struct {
+	GameParameters       gameParametersIntermediate `json:"gameParameters"`
+	Turns                int                        `json:"turns"`
+	CurrentPlayer        string                     `json:"currentPlayer"`
+	CurrentTurnStartTime int64                      `json:"currentTurnStartTime"`
+	GameID               string                     `json:"gameId"`
+	HistoryStartTurn     int                        `json:"historyStartTurn"`
+}
+
+func (data saveDataIntermediate) Convert(v *saveData) error {
+	var gameParameters GameParameters
+	err := data.GameParameters.Convert(&gameParameters)
+	if err != nil {
+		return err
+	}
+	v.GameParameters = gameParameters
+	v.Turns = data.Turns
+	v.CurrentPlayer = data.CurrentPlayer
+	v.CurrentTurnStartTime = time.Unix(data.CurrentTurnStartTime, 0)
+	v.GameID = data.GameID
+	v.HistoryStartTurn = data.HistoryStartTurn
+	return nil
 }
 
 type GameParameters struct {
+	Difficulty           string
+	Players              []Player
+	VictoryTypes         []string
+	IsOnlineMultiplayer  bool
+	MultiplayerServerURL *url.URL
+	BaseRuleset          string
+}
+
+func (gp *GameParameters) UnmarshalJSON(data []byte) error {
+	// unmarshal to intermediate first
+	var intermediate gameParametersIntermediate
+	err := json.Unmarshal(data, &intermediate)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal to intermediate: %w", err)
+	}
+
+	err = intermediate.Convert(gp)
+	if err != nil {
+		return fmt.Errorf("failed to convert intermediate: %w", err)
+	}
+	return nil
+}
+
+type gameParametersIntermediate struct {
 	Difficulty           string   `json:"difficulty"`
 	Players              []Player `json:"players"`
 	VictoryTypes         []string `json:"victoryTypes"`
 	IsOnlineMultiplayer  bool     `json:"isOnlineMultiplayer"`
-	MultiplayerServerURL *url.URL `json:"multiplayerServerUrl,string"`
+	MultiplayerServerURL string   `json:"multiplayerServerUrl"`
 	BaseRuleset          string   `json:"baseRuleset"`
 }
 
-func (gp *GameParameters) UnmarshalJSON(data []byte) error {
-	// unmarshal into a simple dict
-	var rawObj map[string]json.RawMessage
-	err := json.Unmarshal(data, &rawObj)
+func (data gameParametersIntermediate) Convert(v *GameParameters) error {
+	parsedURL, err := url.Parse(data.MultiplayerServerURL)
 	if err != nil {
-		return fmt.Errorf("failed to convert to raw object: %w", err)
+		return err
 	}
-
-	/* This is one of the worst things I've ever made in this language.
-	   Here be dragons.
-	   You have been warned.
-	*/
-	for k, v := range rawObj {
-		switch k {
-		case "multiplayerServerUrl":
-			gp.MultiplayerServerURL, err = url.Parse(strings.Trim(string(v), "\""))
-			if err != nil {
-				return err
-			}
-		default:
-			for _, field := range reflect.VisibleFields(reflect.TypeOf(*gp)) {
-				tag, ok := field.Tag.Lookup("json")
-				if !ok {
-					tag = field.Name
-				}
-				key := strings.Split(tag, ",")[0]
-				if key != k {
-					continue
-				}
-				dest := reflect.New(field.Type).Elem()
-				destPointer := dest.Addr().Interface()
-				err := json.Unmarshal(v, destPointer)
-				if err != nil {
-					return fmt.Errorf("failed to unmarshal into reflect: %w", err)
-				}
-				reflect.ValueOf(gp).Elem().FieldByName(field.Name).Set(dest)
-			}
-		}
-	}
-
+	v.Difficulty = data.Difficulty
+	v.Players = data.Players
+	v.VictoryTypes = data.VictoryTypes
+	v.IsOnlineMultiplayer = data.IsOnlineMultiplayer
+	v.MultiplayerServerURL = parsedURL
+	v.BaseRuleset = data.BaseRuleset
 	return nil
-
 }
 
 type Player struct {
