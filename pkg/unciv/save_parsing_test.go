@@ -37,7 +37,7 @@ var testGameParameters = GameParameters{
 	BaseRuleset:          "Civ V - Vanilla",
 }
 
-const saveDataJSON = `{"gameParameters":` + gameParametersJSON + `,"turns":13,"currentPlayer":"England","currentTurnStartTime":1712768034170,"gameId":"00000000-0000-0000-0000-000000000000","historyStartTurn":0}`
+const saveDataJSON = `{"version":{"number":3,"createdWith":{"text":"x.y.z","number":0}}, "gameParameters":` + gameParametersJSON + `,"turns":13,"currentPlayer":"England","currentTurnStartTime":1712768034170,"gameId":"00000000-0000-0000-0000-000000000000","historyStartTurn":0}`
 
 var testSaveData = saveData{
 	GameParameters:       testGameParameters,
