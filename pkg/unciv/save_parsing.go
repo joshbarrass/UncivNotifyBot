@@ -107,7 +107,7 @@ func (data gameParametersIntermediate) Convert(v *GameParameters) error {
 type Player struct {
 	ChosenCiv  string `json:"chosenCiv"`
 	PlayerType string `json:"playerType"`
-	PlayerID   string `json:"playerId"`
+	PlayerID   string `json:"playerId,omitempty"`
 }
 
 func newSaveFromData(data saveData) (Save, error) {
