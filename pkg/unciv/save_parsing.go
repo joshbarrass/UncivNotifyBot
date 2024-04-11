@@ -134,7 +134,7 @@ func newSaveFromResponse(resp *http.Response) (Save, error) {
 // DownloadSave to a temp file and return a Save. It is the caller's
 // responsibility to Close the save.
 func (server *uncivServer) DownloadSave(gameID string) (Save, error) {
-	u := server.URL.JoinPath(SERVER_FILES_ROUTE)
+	u := server.URL.JoinPath(SERVER_FILES_ROUTE, gameID)
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		return nil, err
