@@ -1,7 +1,10 @@
 package unciv
 
 import (
+	"compress/gzip"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
@@ -60,4 +63,24 @@ func TestSaveDataUnmarshal(t *testing.T) {
 	err := json.Unmarshal([]byte(saveDataJSON), &s)
 	assert.Nil(t, err)
 	assert.Equal(t, testSaveData, s)
+}
+
+func TestDownloadSave(t *testing.T) {
+	var gameID = testSaveData.GameID
+	serveMux := http.NewServeMux()
+	serveMux.HandleFunc(SERVER_FILES_ROUTE+"/"+gameID, func(w http.ResponseWriter, _ *http.Request) {
+		gzw := gzip.NewWriter(w)
+		gzw.Write([]byte(saveDataJSON))
+		gzw.Close()
+	})
+	testServer := httptest.NewServer(serveMux)
+	testClient := testServer.Client()
+
+	server, err := NewUncivServer(testServer.URL, testClient)
+	assert.Nil(t, err)
+
+	s, err := server.DownloadSave(gameID)
+	assert.Nil(t, err)
+	expected, _ := newSaveFromData(testSaveData)
+	assert.Equal(t, expected, s)
 }
