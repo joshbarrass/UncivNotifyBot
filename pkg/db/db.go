@@ -9,7 +9,7 @@ const memoryDatabaseFilename = ":memory:?cache=shared"
 
 type Database interface {
 	GetPlayersByGameID(string) ([]Player, error)
-	// GetPlayerByUncivID(string) ([]Player, error)
+	GetPlayerByUncivID(string) (Player, error)
 }
 
 type gormDB struct {
