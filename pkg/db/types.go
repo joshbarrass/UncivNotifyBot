@@ -6,20 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type KeylessModel struct {
+type keylessModel struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 type Player struct {
-	KeylessModel
+	keylessModel
 	UncivID    string `gorm:"primaryKey"`
 	TelegramID int64
 }
 
 type Game struct {
-	KeylessModel
+	keylessModel
 	GameID  string `gorm:"primaryKey"`
 	ChatID  int64
 	Players []Player `gorm:"many2many:game_players;"`
