@@ -43,14 +43,17 @@ func playerTestSetupDB(t *testing.T) *gormDB {
 
 func TestGetPlayersByGameID(t *testing.T) {
 	DB := playerTestSetupDB(t)
-	for i, game := range []Game{TestGame1, TestGame2} {
+	for i, expected := range []Game{TestGame1, TestGame2} {
 		t.Run(fmt.Sprintf("Game%d", i+1), func(t *testing.T) {
-			players, err := DB.GetPlayersByGameID(game.GameID)
+			actual, err := DB.GetGameByID(expected.GameID)
 			assert.Nil(t, err)
 			// compare manually, since the times in the db make it trickier
-			for i, e := range game.Players {
-				assert.Equal(t, e.UncivID, players[i].UncivID)
-				assert.Equal(t, e.TelegramID, players[i].TelegramID)
+			assert.Equal(t, expected.GameID, actual.GameID)
+			assert.Equal(t, expected.ChatID, actual.ChatID)
+			assert.Equal(t, len(expected.Players), len(actual.Players))
+			for i, expectedPlayer := range expected.Players {
+				assert.Equal(t, expectedPlayer.UncivID, actual.Players[i].UncivID)
+				assert.Equal(t, expectedPlayer.TelegramID, actual.Players[i].TelegramID)
 			}
 		})
 	}
@@ -58,13 +61,13 @@ func TestGetPlayersByGameID(t *testing.T) {
 
 func TestGetPlayerByUncivID(t *testing.T) {
 	DB := playerTestSetupDB(t)
-	for i, e := range []Player{TestPlayer1, TestPlayer2, TestPlayer3} {
+	for i, expected := range []Player{TestPlayer1, TestPlayer2, TestPlayer3} {
 		t.Run(fmt.Sprintf("Player%d", i+1), func(t *testing.T) {
-			player, err := DB.GetPlayerByUncivID(e.UncivID)
+			actual, err := DB.GetPlayerByUncivID(expected.UncivID)
 			assert.Nil(t, err)
 			// compare manually, since the times in the db make it trickier
-			assert.Equal(t, e.UncivID, player.UncivID)
-			assert.Equal(t, e.TelegramID, player.TelegramID)
+			assert.Equal(t, expected.UncivID, actual.UncivID)
+			assert.Equal(t, expected.TelegramID, actual.TelegramID)
 		})
 	}
 }

@@ -4,14 +4,14 @@ import (
 	"fmt"
 )
 
-func (db *gormDB) GetPlayersByGameID(gameID string) ([]Player, error) {
+func (db *gormDB) GetGameByID(gameID string) (Game, error) {
 	var game Game
 	err := db.db.Model(&Game{}).Preload("Players").First(&game, &Game{GameID: gameID}).Error
 	if err != nil {
-		return nil, fmt.Errorf("failed to get game: %w", err)
+		return Game{}, fmt.Errorf("failed to get game: %w", err)
 	}
 
-	return game.Players, nil
+	return game, nil
 }
 
 func (db *gormDB) GetPlayerByUncivID(uncivID string) (Player, error) {

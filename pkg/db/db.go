@@ -8,7 +8,7 @@ import (
 const memoryDatabaseFilename = ":memory:?cache=shared"
 
 type Database interface {
-	GetPlayersByGameID(string) ([]Player, error)
+	GetGameByID(string) (Game, error)
 	GetPlayerByUncivID(string) (Player, error)
 }
 
