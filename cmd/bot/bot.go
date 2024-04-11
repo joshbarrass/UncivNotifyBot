@@ -30,8 +30,17 @@ func main() {
 		logrus.Fatalf("Failed to initialise bot: %s", err)
 	}
 
+	logrus.Debug("Creating context...")
+	context := internal.NewBotContext(bot)
+	err = context.InitialiseMemoryDB()
+	if err != nil {
+		logrus.Fatalf("Failed to initialise DB: %s", err)
+	}
+	logrus.Debug("Created context!")
+
 	logrus.Debug("Adding handlers...")
 	bot.AddHandler(telegrambot.NewCommandHandler("start", internal.CommandStart))
+	bot.AddHandler(telegrambot.NewCommandHandler("bind", internal.CommandBind))
 
 	// catch-all error message
 	bot.AddHandler(telegrambot.NewAllMessageHandler(internal.CommandNotFound))
