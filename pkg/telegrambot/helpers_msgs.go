@@ -63,5 +63,12 @@ func CommandArgsSplit(update tgbotapi.Update) []string {
 	if msg == nil {
 		return []string{}
 	}
-	return strings.Split(msg.CommandArguments(), " ")
+	allArgs := strings.Split(msg.CommandArguments(), " ")
+	filteredArgs := []string{}
+	for _, arg := range allArgs {
+		if len(arg) > 0 {
+			filteredArgs = append(filteredArgs, arg)
+		}
+	}
+	return filteredArgs
 }
