@@ -111,6 +111,7 @@ type Player struct {
 	PlayerID   string `json:"playerId,omitempty"`
 }
 
+// intermediate function in case we need to add any new defaults
 func newSaveFromData(data saveData) (Save, error) {
 	return &save{
 		data: data,
