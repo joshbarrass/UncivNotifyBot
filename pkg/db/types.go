@@ -16,6 +16,7 @@ type Player struct {
 	keylessModel
 	UncivID    string `gorm:"primaryKey"`
 	TelegramID int64
+	Games      []Game `gorm:"many2many:game_players;"`
 }
 
 type Game struct {

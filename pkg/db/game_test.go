@@ -11,7 +11,7 @@ func TestGetGameByID(t *testing.T) {
 	DB := playerTestSetupDB(t)
 	for i, expected := range []Game{TestGame1, TestGame2} {
 		t.Run(fmt.Sprintf("Game%d", i+1), func(t *testing.T) {
-			actual, err := DB.GetGameByID(expected.GameID)
+			actual, err := DB.GetGameByID(expected.GameID, true)
 			assert.Nil(t, err)
 			// compare manually, since the times in the db make it trickier
 			assert.Equal(t, expected.GameID, actual.GameID)

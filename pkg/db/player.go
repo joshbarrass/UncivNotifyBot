@@ -4,9 +4,13 @@ import (
 	"fmt"
 )
 
-func (db *gormDB) GetPlayerByUncivID(uncivID string) (Player, error) {
+func (db *gormDB) GetPlayerByUncivID(uncivID string, getGames bool) (Player, error) {
 	var player Player
-	err := db.db.Model(&Player{}).First(&player, &Player{UncivID: uncivID}).Error
+	query := db.db.Model(&Player{})
+	if getGames {
+		query = query.Preload("Games")
+	}
+	err := query.First(&player, &Player{UncivID: uncivID}).Error
 	if err != nil {
 		return Player{}, fmt.Errorf("failed to get player: %w", err)
 	}

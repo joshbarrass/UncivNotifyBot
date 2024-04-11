@@ -45,7 +45,7 @@ func TestGetPlayerByUncivID(t *testing.T) {
 	DB := playerTestSetupDB(t)
 	for i, expected := range []Player{TestPlayer1, TestPlayer2, TestPlayer3} {
 		t.Run(fmt.Sprintf("Player%d", i+1), func(t *testing.T) {
-			actual, err := DB.GetPlayerByUncivID(expected.UncivID)
+			actual, err := DB.GetPlayerByUncivID(expected.UncivID, false)
 			assert.Nil(t, err)
 			// compare manually, since the times in the db make it trickier
 			assert.Equal(t, expected.UncivID, actual.UncivID)

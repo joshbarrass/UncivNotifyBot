@@ -8,8 +8,8 @@ import (
 const memoryDatabaseFilename = ":memory:?cache=shared"
 
 type Database interface {
-	GetGameByID(string) (Game, error)
-	GetPlayerByUncivID(string) (Player, error)
+	GetGameByID(string, bool) (Game, error)
+	GetPlayerByUncivID(string, bool) (Player, error)
 }
 
 type gormDB struct {
