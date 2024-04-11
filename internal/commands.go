@@ -47,6 +47,7 @@ func CommandBind(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		).Errorf("failed to download save: %s", err)
 		return err
 	}
+	// extract the players
 	players, err := save.GetHumanPlayers()
 	if err != nil {
 		logger := reportError(bot, update)
@@ -60,6 +61,8 @@ func CommandBind(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		return err
 	}
 
+	// convert the players from the save into objects we can store
+	// in the DB
 	dbPlayers := make([]db.Player, len(players))
 	for i, player := range players {
 		dbPlayers[i] = db.Player{
