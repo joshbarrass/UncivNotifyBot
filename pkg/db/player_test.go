@@ -30,7 +30,7 @@ var TestGame2 = Game{
 }
 
 func playerTestSetupDB(t *testing.T) *gormDB {
-	DB, err := NewSqliteDB(memoryDatabaseFilename, true)
+	DB, err := NewMemoryDB(true)
 	var db = DB.(*gormDB)
 	assert.Nil(t, err)
 	assert.Nil(t, db.db.Create(&TestPlayer1).Error)
@@ -52,4 +52,20 @@ func TestGetPlayerByUncivID(t *testing.T) {
 			assert.Equal(t, expected.TelegramID, actual.TelegramID)
 		})
 	}
+}
+
+func TestAddPlayer(t *testing.T) {
+	t.Run("Clean", func(t *testing.T) {
+		DB, err := NewMemoryDB(true)
+		assert.Nil(t, err)
+		// var db = DB.(*gormDB)
+
+		err = DB.AddPlayer(TestPlayer1)
+		assert.Nil(t, err)
+	})
+	t.Run("Clash", func(t *testing.T) {
+		DB := playerTestSetupDB(t)
+		err := DB.AddPlayer(TestPlayer1)
+		assert.NotEqual(t, nil, err)
+	})
 }

@@ -15,3 +15,7 @@ func (db *gormDB) GetGameByID(gameID string, getPlayers bool) (Game, error) {
 
 	return game, nil
 }
+
+func (db *gormDB) AddGame(game Game) error {
+	return db.db.Create(&game).Error
+}

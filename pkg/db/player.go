@@ -16,3 +16,7 @@ func (db *gormDB) GetPlayerByUncivID(uncivID string, getGames bool) (Player, err
 	}
 	return player, nil
 }
+
+func (db *gormDB) AddPlayer(player Player) error {
+	return db.db.Create(&player).Error
+}

@@ -24,3 +24,19 @@ func TestGetGameByID(t *testing.T) {
 		})
 	}
 }
+
+func TestAddGame(t *testing.T) {
+	t.Run("Clean", func(t *testing.T) {
+		DB, err := NewMemoryDB(true)
+		assert.Nil(t, err)
+		// var db = DB.(*gormDB)
+
+		err = DB.AddGame(TestGame1)
+		assert.Nil(t, err)
+	})
+	t.Run("Clash", func(t *testing.T) {
+		DB := playerTestSetupDB(t)
+		err := DB.AddGame(TestGame1)
+		assert.NotEqual(t, nil, err)
+	})
+}

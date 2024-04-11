@@ -10,6 +10,8 @@ const memoryDatabaseFilename = ":memory:?cache=shared"
 type Database interface {
 	GetGameByID(string, bool) (Game, error)
 	GetPlayerByUncivID(string, bool) (Player, error)
+	AddGame(Game) error
+	AddPlayer(Player) error
 }
 
 type gormDB struct {
@@ -27,4 +29,8 @@ func NewSqliteDB(filename string, automigrate bool) (Database, error) {
 	return &gormDB{
 		db: db,
 	}, nil
+}
+
+func NewMemoryDB(automigrate bool) (Database, error) {
+	return NewSqliteDB(memoryDatabaseFilename, automigrate)
 }
