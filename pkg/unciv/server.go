@@ -15,6 +15,7 @@ const (
 
 type UncivServer interface {
 	GetAuthVersion() (int, error)
+	DownloadSave(string) (Save, error)
 }
 
 type uncivServer struct {
