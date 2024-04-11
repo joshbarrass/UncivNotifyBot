@@ -2,6 +2,7 @@ package unciv
 
 import (
 	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -69,9 +70,11 @@ func TestDownloadSave(t *testing.T) {
 	var gameID = testSaveData.GameID
 	serveMux := http.NewServeMux()
 	serveMux.HandleFunc(SERVER_FILES_ROUTE+"/"+gameID, func(w http.ResponseWriter, _ *http.Request) {
-		gzw := gzip.NewWriter(w)
+		base64w := base64.NewEncoder(base64.StdEncoding, w)
+		gzw := gzip.NewWriter(base64w)
 		gzw.Write([]byte(saveDataJSON))
 		gzw.Close()
+		base64w.Close()
 	})
 	testServer := httptest.NewServer(serveMux)
 	testClient := testServer.Client()

@@ -2,6 +2,7 @@ package unciv
 
 import (
 	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -118,7 +119,9 @@ func newSaveFromData(data saveData) (Save, error) {
 
 // it is the caller's responsibility to close the response body
 func newSaveFromResponse(resp *http.Response) (Save, error) {
-	gzreader, err := gzip.NewReader(resp.Body)
+	// server returns base64-encoded, gzipped save
+	b64reader := base64.NewDecoder(base64.StdEncoding, resp.Body)
+	gzreader, err := gzip.NewReader(b64reader)
 	if err != nil {
 		return nil, err
 	}
