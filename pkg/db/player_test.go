@@ -26,6 +26,7 @@ var TestGame1 = Game{
 }
 var TestGame2 = Game{
 	GameID:  "10000000-0000-0000-0000-000000000000",
+	ChatID:  16,
 	Players: []Player{TestPlayer3},
 }
 

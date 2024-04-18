@@ -9,6 +9,7 @@ const memoryDatabaseFilename = ":memory:?cache=shared"
 
 type Database interface {
 	GetGameByID(string, bool) (Game, error)
+	GetGameByChatID(int64, bool) (Game, error)
 	GetPlayerByUncivID(string, bool) (Player, error)
 	AddGame(Game) error
 	AddPlayer(Player) error
