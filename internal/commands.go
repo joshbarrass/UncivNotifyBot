@@ -1,12 +1,14 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/joshbarrass/UncivNotifyBot/pkg/db"
 	"github.com/joshbarrass/UncivNotifyBot/pkg/telegrambot"
 	"github.com/joshbarrass/UncivNotifyBot/pkg/unciv"
+	"github.com/sirupsen/logrus"
 )
 
 func CommandStart(bot *telegrambot.Bot, update tgbotapi.Update) error {
@@ -19,7 +21,18 @@ func CommandNotFound(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	// TODO: maybe determine whether we are in a channel/group
 	// chat where the bot could have been messaged by mistake, and
 	// ignore if that is the case.
-	bot.ReplyToMsg(update, MSG_ERR_NOT_FOUND)
+	msg := telegrambot.GetMessageObject(update)
+	logEntry := logrus.NewEntry(logrus.StandardLogger())
+	msgJson, err := json.Marshal(msg)
+	if err == nil {
+		logEntry = logEntry.WithField("message", string(msgJson))
+	} else {
+		logEntry = logEntry.WithField("message", fmt.Errorf("couldn't marshal message: %w", err))
+	}
+	logEntry.Debug("unknown command")
+	if msg.IsCommand() {
+		bot.ReplyToMsg(update, MSG_ERR_NOT_FOUND)
+	}
 	return nil
 }
 
