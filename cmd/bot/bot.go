@@ -42,6 +42,7 @@ func main() {
 	bot.AddHandler(telegrambot.NewCommandHandler("start", internal.CommandStart))
 	bot.AddHandler(telegrambot.NewCommandHandler("bind", internal.CommandBind))
 	bot.AddHandler(telegrambot.NewCommandHandler("register", internal.CommandConnect))
+	bot.AddHandler(telegrambot.NewCommandHandler("turn", internal.CommandTurn))
 
 	// catch-all error message
 	bot.AddHandler(telegrambot.NewAllMessageHandler(internal.CommandNotFound))

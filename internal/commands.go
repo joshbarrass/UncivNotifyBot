@@ -28,7 +28,7 @@ func CommandConnect(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	userID := msg.From.ID
 	args := telegrambot.CommandArgsSplit(update)
 	if len(args) < 1 {
-		bot.ReplyToMsg(update, MSG_ERR_BIND_NO_ARGS)
+		bot.ReplyToMsg(update, MSG_ERR_CONNECT_NO_ARGS)
 		return nil
 	}
 	uncivID := args[0]
@@ -52,7 +52,8 @@ func CommandConnect(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		// skip -- do nothing
 		return nil
 	}
-	bot.ReplyToMsg(update, fmt.Sprintf("Found uncivID %s with telegramID %d", storedPlayer.UncivID, storedPlayer.TelegramID))
+	bot.ReplyToMsg(update, fmt.Sprintf("Found uncivID %s with telegramID [%d](tg://user?id=%d)", storedPlayer.UncivID, storedPlayer.TelegramID, storedPlayer.TelegramID))
+
 	return nil
 }
 
@@ -130,6 +131,81 @@ func CommandBind(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		return nil
 	}
 	bot.ReplyToMsg(update, fmt.Sprintf("Found game with ID %s (%d human players)", storedGame.GameID, len(storedGame.Players)))
+
+	return nil
+}
+
+func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
+	msg := telegrambot.GetMessageObject(update)
+	chatID := msg.Chat.ID
+
+	// get the game associated with the chat
+	context := GetBotContext(bot)
+	game, err := context.Database.GetGameByChatID(chatID, true)
+	if err != nil {
+		logger := reportError(bot, update)
+		logger.WithField(
+			"chatID",
+			chatID,
+		).Errorf("failed to get game for chat: %s", err)
+		return err
+	}
+
+	// download the game from the server
+	uncivServer := unciv.NewDefaultUncivServer()
+	save, err := uncivServer.DownloadSave(game.GameID)
+	if err != nil {
+		logger := reportError(bot, update)
+		logger.WithField(
+			"gameID",
+			game.GameID,
+		).WithField(
+			"chatID",
+			chatID,
+		).Errorf("failed to download save: %s", err)
+		return err
+	}
+
+	currentPlayer, err := save.GetCurrentPlayer()
+	if err != nil {
+		logger := reportError(bot, update)
+		logger.WithField(
+			"gameID",
+			game.GameID,
+		).WithField(
+			"chatID",
+			chatID,
+		).Errorf("failed to get current player: %s", err)
+		return err
+	}
+
+	// look up the player in the database
+	dbPlayer, err := context.Database.GetPlayerByUncivID(currentPlayer.PlayerID, false)
+	if err != nil {
+		logger := reportError(bot, update)
+		logger.WithField(
+			"gameID",
+			game.GameID,
+		).WithField(
+			"chatID",
+			chatID,
+		).WithField(
+			"uncivID",
+			currentPlayer.PlayerID,
+		).Errorf("failed to look up player in the database: %s", err)
+		return err
+	}
+
+	// send the notification message
+	if dbPlayer.TelegramID != 0 {
+		bot.ReplyToMsg(update,
+			fmt.Sprintf(MSG_TURN_REGISTERED_FMT, currentPlayer.ChosenCiv, dbPlayer.TelegramID),
+		)
+	} else {
+		bot.ReplyToMsg(update,
+			fmt.Sprintf(MSG_TURN_UNREGISTERED_FMT, currentPlayer.ChosenCiv),
+		)
+	}
 
 	return nil
 }
