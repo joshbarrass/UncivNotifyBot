@@ -12,6 +12,7 @@ type Database interface {
 	GetPlayerByUncivID(string, bool) (Player, error)
 	AddGame(Game) error
 	AddPlayer(Player) error
+	ConnectTelegram(string, int64) error
 }
 
 type gormDB struct {
