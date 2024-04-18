@@ -23,6 +23,39 @@ func CommandNotFound(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	return nil
 }
 
+func CommandConnect(bot *telegrambot.Bot, update tgbotapi.Update) error {
+	msg := telegrambot.GetMessageObject(update)
+	userID := msg.From.ID
+	args := telegrambot.CommandArgsSplit(update)
+	if len(args) < 1 {
+		bot.ReplyToMsg(update, MSG_ERR_BIND_NO_ARGS)
+		return nil
+	}
+	uncivID := args[0]
+
+	context := GetBotContext(bot)
+	err := context.Database.ConnectTelegram(uncivID, int64(userID))
+	if err != nil {
+		logger := reportError(bot, update)
+		logger.WithField(
+			"args",
+			args,
+		).WithField(
+			"userID",
+			userID,
+		).Errorf("failed to get human players: %s", err)
+		return err
+	}
+
+	storedPlayer, err := context.Database.GetPlayerByUncivID(uncivID, false)
+	if err != nil {
+		// skip -- do nothing
+		return nil
+	}
+	bot.ReplyToMsg(update, fmt.Sprintf("Found uncivID %s with telegramID %d", storedPlayer.UncivID, storedPlayer.TelegramID))
+	return nil
+}
+
 func CommandBind(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	msg := telegrambot.GetMessageObject(update)
 	chatID := msg.Chat.ID
