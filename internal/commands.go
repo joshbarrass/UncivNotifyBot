@@ -208,13 +208,14 @@ func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		).Errorf("failed to look up player in the database: %s", err)
 		return err
 	}
-
 	// send the notification message
 	if dbPlayer.TelegramID != 0 {
+		logrus.WithField("player", dbPlayer).Debug("notifying registered player")
 		bot.ReplyToMsg(update,
 			fmt.Sprintf(MSG_TURN_REGISTERED_FMT, currentPlayer.ChosenCiv, dbPlayer.TelegramID),
 		)
 	} else {
+		logrus.WithField("player", dbPlayer).Debug("notifying unregistered player")
 		bot.ReplyToMsg(update,
 			fmt.Sprintf(MSG_TURN_UNREGISTERED_FMT, currentPlayer.ChosenCiv),
 		)
