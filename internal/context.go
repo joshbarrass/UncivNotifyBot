@@ -24,3 +24,8 @@ func (context *BotContext) InitialiseMemoryDB() (err error) {
 	context.Database, err = db.NewMemoryDB(true)
 	return
 }
+
+func (context *BotContext) InitialiseSQLiteDB(path string) (err error) {
+	context.Database, err = db.NewSqliteDB(path, true)
+	return
+}

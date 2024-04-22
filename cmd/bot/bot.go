@@ -11,6 +11,7 @@ type Configuration struct {
 	BotToken  string `envconfig:"TOKEN" required:"true"`
 	DebugLogs bool   `envconfig:"DEBUG_LOGS" default:"0"`
 	PoolSize  int    `envconfig:"POOL_SIZE" default:"4"`
+	DBPath    string `envconfig:"DB_PATH" default:""`
 }
 
 func main() {
@@ -32,10 +33,20 @@ func main() {
 
 	logrus.Debug("Creating context...")
 	context := internal.NewBotContext(bot)
-	err = context.InitialiseMemoryDB()
-	if err != nil {
-		logrus.Fatalf("Failed to initialise DB: %s", err)
+	if config.DBPath == "" {
+		logrus.Debug("Initialising memory DB...")
+		err = context.InitialiseMemoryDB()
+		if err != nil {
+			logrus.Fatalf("Failed to initialise memory DB: %s", err)
+		}
+	} else {
+		logrus.Debug("Initialising sqlite DB...")
+		err = context.InitialiseSQLiteDB(config.DBPath)
+		if err != nil {
+			logrus.Fatalf("Failed to initialise sqlite DB: %s", err)
+		}
 	}
+	logrus.Debug("Initialised DB")
 	logrus.Debug("Created context!")
 
 	logrus.Debug("Adding handlers...")
