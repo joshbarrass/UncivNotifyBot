@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -155,6 +156,10 @@ func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	// get the game associated with the chat
 	context := GetBotContext(bot)
 	game, err := context.Database.GetGameByChatID(chatID, true)
+	if errors.Is(err, db.ErrGameNotFound) {
+		bot.ReplyToMsg(update, MSG_ERR_NO_GAME_FOUND)
+		return nil
+	}
 	if err != nil {
 		logger := reportError(bot, update)
 		logger.WithField(
