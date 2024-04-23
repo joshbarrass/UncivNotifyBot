@@ -52,7 +52,7 @@ func (data saveDataIntermediate) Convert(v *saveData) error {
 	v.GameParameters = gameParameters
 	v.Turns = data.Turns
 	v.CurrentFaction = data.CurrentPlayer
-	v.CurrentTurnStartTime = time.Unix(data.CurrentTurnStartTime, 0)
+	v.CurrentTurnStartTime = time.Unix(data.CurrentTurnStartTime/1000, 0)
 	v.GameID = data.GameID
 	v.HistoryStartTurn = data.HistoryStartTurn
 	return nil

@@ -47,7 +47,7 @@ var testSaveData = saveData{
 	GameParameters:       testGameParameters,
 	Turns:                13,
 	CurrentFaction:       "England",
-	CurrentTurnStartTime: time.Unix(1712768034170, 0),
+	CurrentTurnStartTime: time.Unix(1712768034170/1000, 0),
 	GameID:               "00000000-0000-0000-0000-000000000000",
 	HistoryStartTurn:     0,
 }
