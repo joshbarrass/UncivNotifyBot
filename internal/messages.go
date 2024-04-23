@@ -8,9 +8,9 @@ const (
 )
 
 const (
-	MSG_TURN                  = "It is your turn!"
-	MSG_TURN_REGISTERED_FMT   = "[%s](tg://user?id=%d): " + MSG_TURN
-	MSG_TURN_UNREGISTERED_FMT = "%s: " + MSG_TURN
+	MSG_TURN_FMT              = "It is your turn! (as of %s)"
+	MSG_TURN_REGISTERED_FMT   = "[%s](tg://user?id=%d): " + MSG_TURN_FMT
+	MSG_TURN_UNREGISTERED_FMT = "%s: " + MSG_TURN_FMT
 )
 
 const (

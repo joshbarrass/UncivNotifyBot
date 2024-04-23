@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/joshbarrass/UncivNotifyBot/pkg/db"
 	"github.com/joshbarrass/UncivNotifyBot/pkg/telegrambot"
+	"github.com/joshbarrass/UncivNotifyBot/pkg/timesince"
 	"github.com/joshbarrass/UncivNotifyBot/pkg/unciv"
 	"github.com/sirupsen/logrus"
 )
@@ -196,6 +198,8 @@ func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		).Errorf("failed to get current player: %s", err)
 		return err
 	}
+	turnStartTime := save.GetCurrentTurnStartTime()
+	formattedTimeDiff := timesince.FormatTimeDelta(time.Now(), turnStartTime, false)
 
 	// look up the player in the database
 	dbPlayer, err := context.Database.GetPlayerByUncivID(currentPlayer.PlayerID, false)
@@ -217,12 +221,12 @@ func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	if dbPlayer.TelegramID != 0 {
 		logrus.WithField("player", dbPlayer).Debug("notifying registered player")
 		bot.ReplyToMsg(update,
-			fmt.Sprintf(MSG_TURN_REGISTERED_FMT, currentPlayer.ChosenCiv, dbPlayer.TelegramID),
+			fmt.Sprintf(MSG_TURN_REGISTERED_FMT, currentPlayer.ChosenCiv, dbPlayer.TelegramID, formattedTimeDiff),
 		)
 	} else {
 		logrus.WithField("player", dbPlayer).Debug("notifying unregistered player")
 		bot.ReplyToMsg(update,
-			fmt.Sprintf(MSG_TURN_UNREGISTERED_FMT, currentPlayer.ChosenCiv),
+			fmt.Sprintf(MSG_TURN_UNREGISTERED_FMT, currentPlayer.ChosenCiv, formattedTimeDiff),
 		)
 	}
 

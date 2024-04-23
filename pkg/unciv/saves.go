@@ -1,10 +1,14 @@
 package unciv
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Save interface {
 	GetCurrentPlayer() (Player, error)
 	GetHumanPlayers() ([]Player, error)
+	GetCurrentTurnStartTime() time.Time
 }
 
 type save struct {
@@ -28,4 +32,8 @@ func (save *save) GetHumanPlayers() ([]Player, error) {
 		}
 	}
 	return players, nil
+}
+
+func (save *save) GetCurrentTurnStartTime() time.Time {
+	return save.data.CurrentTurnStartTime
 }
