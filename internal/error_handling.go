@@ -26,6 +26,6 @@ func generateErrorReference() string {
 func reportError(bot *telegrambot.Bot, update tgbotapi.Update) *logrus.Entry {
 	ref := generateErrorReference()
 	msg := fmt.Sprintf(MSG_ERR_UNEXPECTED_FMT, ref)
-	bot.ReplyToMsg(update, msg)
+	bot.ReplyToMsg(update, msg, true)
 	return logrus.WithField("reference", ref)
 }

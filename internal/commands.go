@@ -16,7 +16,7 @@ import (
 
 func CommandStart(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	userForename := telegrambot.GetUserFirstName(update)
-	bot.ReplyToMsg(update, fmt.Sprintf(MSG_START_FMT, userForename))
+	bot.ReplyToMsg(update, fmt.Sprintf(MSG_START_FMT, userForename), true)
 	return nil
 }
 
@@ -34,7 +34,7 @@ func CommandNotFound(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	}
 	logEntry.Debug("unknown command")
 	if msg.IsCommand() {
-		bot.ReplyToMsg(update, MSG_ERR_NOT_FOUND)
+		bot.ReplyToMsg(update, MSG_ERR_NOT_FOUND, true)
 	}
 	return nil
 }
@@ -44,7 +44,7 @@ func CommandConnect(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	userID := msg.From.ID
 	args := telegrambot.CommandArgsSplit(update)
 	if len(args) < 1 {
-		bot.ReplyToMsg(update, MSG_ERR_CONNECT_NO_ARGS)
+		bot.ReplyToMsg(update, MSG_ERR_CONNECT_NO_ARGS, true)
 		return nil
 	}
 	uncivID := args[0]
@@ -68,7 +68,7 @@ func CommandConnect(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		// skip -- do nothing
 		return nil
 	}
-	bot.ReplyToMsg(update, fmt.Sprintf("Found uncivID %s with telegramID [%d](tg://user?id=%d)", storedPlayer.UncivID, storedPlayer.TelegramID, storedPlayer.TelegramID))
+	bot.ReplyToMsg(update, fmt.Sprintf("Found uncivID %s with telegramID [%d](tg://user?id=%d)", storedPlayer.UncivID, storedPlayer.TelegramID, storedPlayer.TelegramID), true)
 
 	return nil
 }
@@ -78,7 +78,7 @@ func CommandBind(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	chatID := msg.Chat.ID
 	args := telegrambot.CommandArgsSplit(update)
 	if len(args) < 1 {
-		bot.ReplyToMsg(update, MSG_ERR_BIND_NO_ARGS)
+		bot.ReplyToMsg(update, MSG_ERR_BIND_NO_ARGS, true)
 		return nil
 	}
 	gameID := args[0]
@@ -146,7 +146,7 @@ func CommandBind(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		// skip -- do nothing
 		return nil
 	}
-	bot.ReplyToMsg(update, fmt.Sprintf("Found game with ID %s (%d human players)", storedGame.GameID, len(storedGame.Players)))
+	bot.ReplyToMsg(update, fmt.Sprintf("Found game with ID %s (%d human players)", storedGame.GameID, len(storedGame.Players)), true)
 
 	return nil
 }
@@ -159,7 +159,7 @@ func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
 	context := GetBotContext(bot)
 	game, err := context.Database.GetGameByChatID(chatID, true)
 	if errors.Is(err, db.ErrGameNotFound) {
-		bot.ReplyToMsg(update, MSG_ERR_NO_GAME_FOUND)
+		bot.ReplyToMsg(update, MSG_ERR_NO_GAME_FOUND, true)
 		return nil
 	}
 	if err != nil {
@@ -222,12 +222,12 @@ func CommandTurn(bot *telegrambot.Bot, update tgbotapi.Update) error {
 		logrus.WithField("player", dbPlayer).Debug("notifying registered player")
 		bot.ReplyToMsg(update,
 			fmt.Sprintf(MSG_TURN_REGISTERED_FMT, currentPlayer.ChosenCiv, dbPlayer.TelegramID, formattedTimeDiff),
-		)
+			false)
 	} else {
 		logrus.WithField("player", dbPlayer).Debug("notifying unregistered player")
 		bot.ReplyToMsg(update,
 			fmt.Sprintf(MSG_TURN_UNREGISTERED_FMT, currentPlayer.ChosenCiv, formattedTimeDiff),
-		)
+			false)
 	}
 
 	return nil

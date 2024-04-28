@@ -31,15 +31,18 @@ func GetUpdateMessageID(update tgbotapi.Update) (int, error) {
 }
 
 // ReplyToMsg sends a message of a given text as a reply to the
-// message in the update. The Markdown parser is assumed. If the
-// update does not contain a message that can be replied to, the
-// message is sent without a reply.
-func (bot *Bot) ReplyToMsg(update tgbotapi.Update, text string) error {
+// message in the update. The Markdown parser is assumed. If asReply
+// is false or the update does not contain a message that can be
+// replied to, the message is sent without specifically replying to
+// the update.
+func (bot *Bot) ReplyToMsg(update tgbotapi.Update, text string, asReply bool) error {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 
-	replyToID, err := GetUpdateMessageID(update)
-	if err == nil {
-		msg.ReplyToMessageID = replyToID
+	if asReply {
+		replyToID, err := GetUpdateMessageID(update)
+		if err == nil {
+			msg.ReplyToMessageID = replyToID
+		}
 	}
 
 	msg.ParseMode = tgbotapi.ModeMarkdown
