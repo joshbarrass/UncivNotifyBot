@@ -21,10 +21,14 @@ func CommandStart(bot *telegrambot.Bot, update tgbotapi.Update) error {
 }
 
 func CommandNotFound(bot *telegrambot.Bot, update tgbotapi.Update) error {
-	// TODO: maybe determine whether we are in a channel/group
-	// chat where the bot could have been messaged by mistake, and
-	// ignore if that is the case.
+	// determine whether we are in a channel/group chat where the
+	// bot could have been messaged by mistake, and ignore if that
+	// is the case.
 	msg := telegrambot.GetMessageObject(update)
+	if msg.Chat.IsGroup() || msg.Chat.IsChannel() {
+		return nil
+	}
+
 	logEntry := logrus.NewEntry(logrus.StandardLogger())
 	msgJson, err := json.Marshal(msg)
 	if err == nil {
